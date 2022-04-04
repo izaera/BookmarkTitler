@@ -1,0 +1,19 @@
+{
+	"manifest_version": 2,
+	"name": "BookmarkTitler",
+	"version": "1.0",
+	"description": "Sets bookmark tab titles to the name of the bookmarks",
+	"icons": {
+		"48": "icon.svg",
+		"96": "icon.svg"
+	},
+	"permissions": [
+		"*://*/*",
+		"bookmarks",
+		"tabs"
+	],
+	"background": {
+		"scripts": ["background.js"]
+	}
+}
+
