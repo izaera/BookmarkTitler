@@ -1,12 +1,15 @@
+const APPLICATIONS_FOLDER = 'Aplicaciones';
+
 const bookmarks = [];
 
-function collectBookmarks(node, bookmarks) {
+function collectBookmarks(node, parent, bookmarks) {
 	if (node.type === 'folder') {
 		for (const child of node.children) {
-			collectBookmarks(child, bookmarks);
+			collectBookmarks(child, node, bookmarks);
 		}
 	}
-	else if (node.type === 'bookmark') {
+	else if (node.type === 'bookmark' && parent.title
+			&& parent.title === APPLICATIONS_FOLDER) {
 		bookmarks.push(node);
 	}
 }
@@ -16,7 +19,7 @@ async function reloadBookmarks() {
 
 	bookmarks.length = 0;
 
-	collectBookmarks(tree[0], bookmarks)
+	collectBookmarks(tree[0], {}, bookmarks)
 }
 
 async function updateTabsTitles() {
@@ -25,14 +28,12 @@ async function updateTabsTitles() {
 	for (const tab of tabs) {
 		updateTabTitle(tab);
 	}
-
-	console.log(tabs);
 }
 
 function updateTabTitle(tab) {
 	for (const bookmark of bookmarks) {
 		if (tab.url.startsWith(bookmark.url)) {
-			tab.title = '🔖 ' + bookmark.title;
+			tab.title = '🦊 ' + bookmark.title;
 
 			browser.tabs.executeScript(tab.id, {
 				code: `document.title = '${tab.title}';`
@@ -54,4 +55,6 @@ browser.tabs.onUpdated.addListener(
 	(_tabId, _changeInfo, tab) => updateTabTitle(tab)
 );
 
-reloadBookmarks().then(updateTabsTitles);
+reloadBookmarks()
+	.then(updateTabsTitles)
+	.catch(console.error);
