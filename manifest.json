@@ -10,10 +10,19 @@
 	"permissions": [
 		"*://*/*",
 		"bookmarks",
+		"storage",
 		"tabs"
 	],
 	"background": {
 		"scripts": ["background.js"]
+	},
+	"options_ui": {
+		"page": "options.html"
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "BookmarkTitler@izaera.github.com"
+		}
 	}
 }
 
