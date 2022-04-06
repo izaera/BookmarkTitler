@@ -1,4 +1,6 @@
-const APPLICATIONS_FOLDER = 'Aplicaciones';
+const CONFIG = {
+	applicationFoldersName: 'Aplicaciones',
+};
 
 const bookmarks = [];
 
@@ -9,9 +11,20 @@ function collectBookmarks(node, parent, bookmarks) {
 		}
 	}
 	else if (node.type === 'bookmark' && parent.title
-			&& parent.title === APPLICATIONS_FOLDER) {
+			&& parent.title === CONFIG.applicationFoldersName) {
 		bookmarks.push(node);
 	}
+}
+
+async function loadConfig() {
+	let applicationFoldersName = 
+		await browser.storage.sync.get("applicationFoldersName");
+
+	if (applicationFoldersName.length) {
+		CONFIG.applicationFoldersName = applicationFoldersName;
+	}
+
+	//console.log('loadConfig', CONFIG);
 }
 
 async function reloadBookmarks() {
@@ -33,7 +46,11 @@ async function updateTabsTitles() {
 function updateTabTitle(tab) {
 	for (const bookmark of bookmarks) {
 		if (tab.url.startsWith(bookmark.url)) {
-			tab.title = '🦊 ' + bookmark.title;
+			const newTitle = '🦊 ' + bookmark.title;
+
+			//console.log('updateTabTitle', `"${newTitle}"`, '--', tab.url);
+
+			tab.title = newTitle;
 
 			browser.tabs.executeScript(tab.id, {
 				code: `document.title = '${tab.title}';`
@@ -55,6 +72,7 @@ browser.tabs.onUpdated.addListener(
 	(_tabId, _changeInfo, tab) => updateTabTitle(tab)
 );
 
-reloadBookmarks()
+loadConfig()
+	.then(reloadBookmarks)
 	.then(updateTabsTitles)
 	.catch(console.error);
